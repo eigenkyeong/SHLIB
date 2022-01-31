@@ -3,16 +3,16 @@
 
 using namespace std;
 
-class User 
+class User
 {
-private:
+protected:
 	string id;
 	string password;
 
 public:
 
 	// Constructor
-	User(); 
+	User();
 	//Destructor
 	virtual ~User();
 
@@ -21,4 +21,3 @@ public:
 	string getId() const;
 	string getPassword() const;
 };
-

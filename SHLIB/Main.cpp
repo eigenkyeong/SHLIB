@@ -3,7 +3,19 @@
 #include "Admin.h"
 #include "Student.h"
 
+#include <iostream>
+
+using namespace std;
+
 int main(void) {
+	//Book::Book(string na, string au, string tr, string publisher, string year) { // 윤재원
+	/*Book book("제목", "작가", "역자", "출판사", "2000");
+	Student student;
+
+	student.menu();
+
+	*/
+	setlocale(LC_ALL, "");
 
 	Library lib;
 
@@ -13,8 +25,6 @@ int main(void) {
 
 	return 0;
 }
-
-
 
 /*
 

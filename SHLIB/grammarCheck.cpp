@@ -1,88 +1,125 @@
 #include "grammarCheck.h"
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <regex>
+
+using namespace std;
 
 //¿Ï¼º
-bool check_id(string id){
+bool check_id(string id) {
 	//¾ÕÀÚ¸® °ø¹é »èÁ¦
-	const auto st = id.find_first_not_of(" ");
-	id = id.substr(st);
+   //¾ÕÀÚ¸® °ø¹é »èÁ¦
+   const auto st = id.find_first_not_of(" ");
+   id = id.substr(st);
 
-	//°ø¹é Æ÷ÇÔ¿©ºÎ
-	if (id.find(" ") != string::npos) {
-		return false;
-	}
+   //°ø¹é Æ÷ÇÔ¿©ºÎ
+   if (id.find(" ") != string::npos) {
+      return false;
+   }
 
-	//ÇÑ±Û,Æ¯¼ö¹®ÀÚ ÀÕÀ¸¸é ¾ÈµÊ
-	regex r0 = ("[|~!@#`$=-%^&*()_+?></.:;]");
-	if(regex_match(id, r0)){
-		return false;
-	}
-	
-	regex r1("[¤¡-¤¾|¤¿-¤Ó|°¡-ÆR]+");
-	if(regex_match(id, r1)){
-		return false;
-	}
+   //±æÀÌ Á¦ÇÑ
+   if (id.length() < 6 || id.length() > 15)
+      return false;
 
-	regex r2("[a-zA-Z1-9_]{6,15}");
-	if(regex_match(id, r2)){
-		return true;
-	}
-	else{
-		return false;
-	}	
+   //ÇÑ±Û,Æ¯¼ö¹®ÀÚ ÀÕÀ¸¸é ¾ÈµÊ
+   regex r0("[|~!@#`$=%^&*\\-_+?></.;:,\"]");
+   if (regex_search(id, r0)) {
+      return false;
+   }
+
+   const char* check = id.c_str();
+   for (size_t i = 0; i < id.size(); i++) {
+      if (check[i] & 0x80 == 1) {
+         return false;
+      }
+   }
+
+   regex r2("[a-zA-Z1-9_]{5,15}");
+   if (regex_search(id, r2)) {
+      return true;
+   }
+   else {
+      return false;
+   }
 
 }
 
 //¿Ï¼º
-bool check_password(string pw){
+bool check_password(string pw) {
 	//¾ÕÀÚ¸® °ø¹é »èÁ¦
 	const auto st = pw.find_first_not_of(" ");
 	pw = pw.substr(st);
 
 	//°ø¹é Æ÷ÇÔ¿©ºÎ
-	if (id.find(" ") != string::npos) {
-		return false;
-	}
-	
-	regex r0("[¤¡-¤¾|¤¿-¤Ó|°¡-ÆR]+");
-	if(regex_match(pw, r0)){
+	if (pw.find(" ") != string::npos) {
 		return false;
 	}
 
-	regex r1("[a-zA-Z1-9]{8,20}");
-	if(!regex_match(pw, r1)){
+	const char* check = pw.c_str();
+	for (size_t i = 0; i < pw.size(); i++) {
+		if (check[i] & 0x80 == 1) {
+			return false;
+		}
+		
+	}
+
+	regex r1("[a-zA-Z1-9]{6,19}");
+	if (!regex_search(pw, r1)) {
 		return false;
 	}
 
-	regex r2("[~!@#`$=-%^&*()_+?></.,:;]{1,}");
-	if(!regex_match(pw, r2)){
+	regex xx("[a-zA-Z]");
+	if (!regex_search(pw, xx)) {
 		return false;
 	}
+
+	regex xx1("[1-9]");
+	if (!regex_search(pw, xx1)) {
+		return false;
+	}
+
+	regex r2("[|~!@#`$=%^&*\-_+?></.;:,\']{1,}");
+	if (!regex_search(pw, r2)) {
+		return false;
+	}
+
+	//±æÀÌ Á¦ÇÑ
+	if (pw.size() < 8 || pw.size() > 20)
+		return false;
 
 	return true;
 }
 
 //¿Ï¼º
-bool check_Name(string name){
-	if (name.find(" ") != string::npos) {
+bool check_Name(string name) {
+	if (name.find(" ") != string::npos) { // °ø¹é
 		return false;
 	}
-	
-	regex r0("[¤¡-¤¾|¤¿-¤Ó|°¡-ÆR]{1,}");
-	if(!regex_match(name, r0)){
-		return false;
+
+	bool isKorea = true;
+
+	const char* check = name.c_str();
+	for (size_t i = 0; i < name.size(); i++) {
+		if ((check[i] & 0x80) == 1) { // ÇÑ±Û¾Æ´Ï¸é
+			isKorea = false;
+			break;
+		}
 	}
+
+	if (!isKorea) return false;
 
 	regex r1("[a-zA-Z1-9]{1,}");
-	if(regex_match(name, r1)){
+	if (regex_search(name, r1)) {
 		return false;
 	}
 
-	regex r2("[~!@#`$=-%^&*()_+?></.,:;]{1,}");
-	if(regex_match(name, r2)){
+	regex r2("[|~!@#`$=%^&*\-_+?></.;:,\'\"]{1,}");
+	if (regex_search(name, r2)) {
 		return false;
 	}
 
-	if (name.length() < 2 || name.length() > 6)
+	if (name.length() < 4 || name.length() > 12)
 		return false;
 
 	return true;
@@ -90,69 +127,245 @@ bool check_Name(string name){
 }
 
 // ¿Ï¼º
-bool check_book(string name){
+bool check_book(string name) {
 	return true;
 }
 
 // ¿Ï¼º 
-bool check_author(string name){
+bool check_author(string name) {
 
-	regex r0("[¤¡-¤¾|¤¿-¤Ó|°¡-ÆR]{1,}");
-	if(!regex_match(name, r0)){
-		return false;
+	bool isKorea = true;
+	const char* check = name.c_str();
+	for (size_t i = 0; i < name.size(); i++) {
+		if (check[i] & 0x80 == 1) { // ÇÑ±ÛÀÌ¸é
+			isKorea = false;
+		}
 	}
+
+	if (!isKorea) return false;
 
 	regex r1("[a-zA-Z1-9]{1,}");
-	if(regex_match(name, r1)){
+	if (regex_search(name, r1)) {
 		return false;
 	}
 
-	regex r2("[~!@#`$=-%^&*()_+?></,:;]{1,}");
-	if(regex_match(name, r2)){
+	regex r2("[|~!@#`$=%^&*\-_+?></.;:,\'\"]{1,}");
+	if (regex_search(name, r2)) {
 		return false;
 	}
-	
+
 	return true;
 }
 
 // ¿Ï¼º
-bool check_translator(string name){
-	regex r0("[¤¡-¤¾|¤¿-¤Ó|°¡-ÆR]{1,}");
+bool check_translator(string name) {
 
-	if(!regex_match(name, r0)){
-		return false;
-	}
+	if (name.length() == 0)
+		return true;
 
-	regex r1("[a-zA-Z1-9]{1,}");
-	if(regex_match(name, r1)){
-		return false;
-	}
-
-	regex r2("[~!@#`$=-%^&*()_+?></.,:;]{1,}");
-	if(regex_match(name, r2)){
+	if (name.find(" ") != string::npos) { // °ø¹é
 		return false;
 	}
 	
-	return true
+	//±æÀÌ Á¦ÇÑ
+	if (name.length() < 1 || name.length() > 10)
+		return false;
+
+	bool isKorea = true;
+	const char* check = name.c_str();
+	for (size_t i = 0; i < name.size(); i++) {
+		if (check[i] & 0x80 == 1) { // ÇÑ±ÛÀÌ¸é
+			isKorea = false;
+		}
+	}
+
+	if (!isKorea) return false;
+
+	regex r1("[a-zA-Z1-9]{1,}");
+	if (regex_search(name, r1)) {
+		return false;
+	}
+
+	regex r2("[|~!@#`$=%^&*\-_+?></.;:,\'\"]{1,}");
+	if (regex_search(name, r2)) {
+		return false;
+	}
+
+	return true;
 }
 
 
 bool check_studentID(string s_id)
 {
-	if (s_id.length()<2 ||s_id.length()>6  )
+	if (s_id.length() != 9)
 		return false;
-	
-	
-}
 
+//	if (s_id.find(" ")) {
+//		return false;
+//	}
 
-bool check_publisher(string pub){
-	
+	for (size_t i = 0; i < s_id.size(); i++) {
+		if (isdigit(s_id[i]) == false) {
+			return false;
+		}
+	}
+
+	int id = stoi(s_id);
+
+	if (id < 193100000)
+		return false;
+
+	return true;
 }
 
 //¿Ï¼º
-bool check_year(string year){
-	if (year.length()!=4  )
-		return false;`
-	 return !year.empty() && find_if(year.begin(), year.end(), [](unsigned char c) { return !isdigit(c); }) == year.end();
+bool check_publisher(string pub) {
+
+	if (pub.find(" ") != string::npos) { // °ø¹é
+		return false;
+	}
+	regex r("[|~!@#`$=%^&*\-_+?></.;:,\'\"]{1,}");
+	if (regex_search(pub, r)) {
+		return false;
+	}
+
+	return true;
+}
+
+//
+bool check_year(string year) {
+	if (year.length() != 4)
+		return false;
+	return !year.empty() && find_if(year.begin(), year.end(), [](unsigned char c) { return !isdigit(c); }) == year.end();
+}
+
+int input(string msg, int a, int b){ // ÀÔ·Â ¸Þ½ÃÁö, [a, b] Á¤¼ö ÀÔ·Â
+    int c;
+    string inp;
+	
+    while (true) {
+		cout << msg;
+		getline(cin, inp);
+
+        if (inp.size() == 0) {
+            cout << "¼ýÀÚ¸¦ ÀÔ·ÂÇÏ¼¼¿ä." << endl;;
+            continue;
+        }
+
+		// ¼ýÀÚ ÆÇº°
+		bool isdigit_num = true;
+		for (size_t i = 0; i < inp.size(); i++) {
+			if (isdigit(inp[i]) == 0) {
+				cout << "¼ýÀÚ°¡ ¾Æ´Õ´Ï´Ù. ÇÏ³ªÀÇ ¼ýÀÚ¸¸ ÀÔ·ÂÇÏ¼¼¿ä." << endl;
+				isdigit_num = false;
+				
+				break;
+			}
+		}
+		
+        //¼ýÀÚ ¾Æ´Ï¸é
+        if (isdigit_num == false) continue;
+        
+        //¼ýÀÚ¸é
+		c = stoi(inp); 
+        if(c > b || c < a){
+            cout << a <<" ~ "<<b<< " »çÀÌÀÇ Á¤¼ö·Î ÀÔ·ÂÇØÁÖ¼¼¿ä.\n";
+            continue;
+        }
+		break;
+	}
+    return c;
+}
+
+
+string current_date; // ÇöÀç ³¯Â¥
+
+string getCurrent_date()
+{
+	return current_date;
+}
+
+void setCurrent_date(string date)
+{
+	current_date = date;
+	return;
+}
+
+
+int getDiff_date(string comp, string date) // ±âÁØ³¯Â¥¶û ÇöÀç³¯Â¥ Â÷ÀÌ (ÀÏ¼ö·Î) - °­ÁöÀ±
+{
+	// ±âÁØ : dft, ÇöÀç : timet 
+	time_t dft, timet;
+	struct tm s_dft, stm;
+	s_dft.tm_year = stoi(comp.substr(0, 4)) - 1900;
+	s_dft.tm_mon = stoi(comp.substr(5, 2)) - 1;
+	s_dft.tm_mday = stoi(comp.substr(8, 2));
+	s_dft.tm_hour = 0; s_dft.tm_min = 0; s_dft.tm_sec = 0; s_dft.tm_isdst = 0;
+
+	stm.tm_year = stoi(date.substr(0, 4)) - 1900;
+	stm.tm_mon = stoi(date.substr(5, 2)) - 1;
+	stm.tm_mday = stoi(date.substr(8, 2));
+	stm.tm_hour = 0; stm.tm_min = 0; stm.tm_sec = 0; stm.tm_isdst = 0;
+
+	dft = mktime(&s_dft);
+	timet = mktime(&stm);
+	double diff = difftime(timet, dft);
+	int df_day, df_hour, df_min;
+	df_day = diff / (int)(60 * 60 * 24);
+
+	return df_day;
+}
+
+string getAfter_date(string date, int day) // ÇöÀç³¯Â¥·ÎºÎÅÍ dayÀÏ ÈÄ ³¯Â¥ - °­ÁöÀ±
+{
+	time_t dft, timet;
+	struct tm s_dft, stm;
+	stm.tm_year = stoi(date.substr(0, 4));
+	stm.tm_mon = stoi(date.substr(5, 2)) - 1;
+	stm.tm_mday = stoi(date.substr(8, 2));
+	stm.tm_hour = 0; stm.tm_min = 0; stm.tm_sec = 0; stm.tm_isdst = 0;
+
+	stm.tm_mday += day;
+	int days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+	while (stm.tm_mday > 0) {
+		days[1] = 28;
+		bool flag = false;
+		if (stm.tm_year % 4 == 0) {
+			flag = true;
+			if (stm.tm_year % 100 == 0) {
+				flag = false;
+				if (stm.tm_year % 400 == 0) {
+					flag = true;
+				}
+			}
+		}
+
+		if (flag) days[1] = 29;
+
+		if (stm.tm_mday > days[stm.tm_mon]) { // ´õ Å©¸é
+			stm.tm_mday -= days[stm.tm_mon];
+			stm.tm_mon++;
+			if (stm.tm_mon > 11) { // monÀº [0 ~ 11]
+				stm.tm_mon = 0;
+				stm.tm_year++;
+			}
+		}
+		else
+			break;
+
+	}
+
+	string mday = "";
+	if (to_string(stm.tm_mday).size() == 1) {
+		mday = "0" + to_string(stm.tm_mday);
+	}
+	else {
+		mday = to_string(stm.tm_mday);
+	}
+
+
+	string temp = to_string(stm.tm_year) + "." + to_string(stm.tm_mon + 1) + "." + mday;
+
+	return temp;
 }
